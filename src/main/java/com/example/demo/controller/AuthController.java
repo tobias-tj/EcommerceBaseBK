@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.ChangePasswordRequest;
 import com.example.demo.dto.EmailConfirmationRequest;
 import com.example.demo.dto.LoginRequest;
@@ -9,6 +10,7 @@ import com.example.demo.service.JwtService;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,8 +41,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody User user) throws IllegalAccessException {
-        return ResponseEntity.ok(userService.registerUser(user));
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody User user) throws IllegalAccessException {
+        User registeredUser = userService.registerUser(user);
+
+        if (registeredUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, "Error al registrar el usuario"));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse(true, "Usuario registrado correctamente"));
     }
 
     @PostMapping("/change-password")

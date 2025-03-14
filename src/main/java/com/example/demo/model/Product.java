@@ -21,6 +21,7 @@ public class Product {
     private String description;
     private BigDecimal price;
     private Integer quantity;
+    private BigDecimal rating;
     private String image;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

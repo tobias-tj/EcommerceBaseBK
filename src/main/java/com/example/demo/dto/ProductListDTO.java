@@ -21,4 +21,6 @@ public class ProductListDTO {
     @PositiveOrZero(message = "Quantity must be positive or zero")
     private Integer quantity;
     private String image;
+    @Positive(message = "Cannot be negative")
+    private BigDecimal rating;
 }

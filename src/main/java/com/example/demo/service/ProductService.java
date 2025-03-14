@@ -72,6 +72,10 @@ public class ProductService {
         return productRepository.findAllWithoutComments();
     }
 
+    public List<ProductListDTO> searchProducts(String searchTerm) {
+        return productRepository.findBySearchTerm(searchTerm);
+    }
+
 
     private String saveImage(MultipartFile productImage) throws IOException {
         String fileName = UUID.randomUUID().toString()+"."+productImage.getOriginalFilename();

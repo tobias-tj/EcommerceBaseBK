@@ -9,7 +9,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +60,55 @@ public class UserService {
         }
     }
 
+    public void recoverAccount(String email) {
+        User user = getUserByEmail(email);
+        String newPassword = generatePasswordTemporary();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        emailService.sendRecoverAccount(user, newPassword);
+        userRepository.save(user);
+    }
+
     public String generateConfirmationCode(){
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
+    }
+
+    public String generatePasswordTemporary() {
+        String lowercase = "abcdefghijklmnopqrstuvwxyz";
+        String uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String password = getPasswordSecurity(lowercase, uppercase);
+
+        // Mezclar los caracteres para mayor aleatoriedad
+        List<Character> chars = password.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toList());
+        Collections.shuffle(chars);
+
+        // Convertir la lista de caracteres a una cadena
+        return chars.stream()
+                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+                .toString();
+    }
+
+    private static String getPasswordSecurity( String lowercase, String uppercase ) {
+        String numbers = "012345";
+        String specialChars = "!#%^&*";
+
+        String allChars = lowercase + uppercase + numbers + specialChars;
+        SecureRandom random = new SecureRandom();
+
+        // Asegurar al menos un carácter de cada tipo
+        String password = String.valueOf(lowercase.charAt(random.nextInt(lowercase.length())))
+                + uppercase.charAt(random.nextInt(uppercase.length()))
+                + numbers.charAt(random.nextInt(numbers.length()))
+                + specialChars.charAt(random.nextInt(specialChars.length()));
+
+        // Generar el resto de la contraseña
+        for (int i = 0; i < 4; i++) {
+            password += allChars.charAt(random.nextInt(allChars.length()));
+        }
+        return password;
     }
 
 }

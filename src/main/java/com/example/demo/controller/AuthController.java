@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
-import com.example.demo.dto.ChangePasswordRequest;
-import com.example.demo.dto.EmailConfirmationRequest;
-import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.*;
 import com.example.demo.exception.ResourcesNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.JwtService;
@@ -68,6 +65,21 @@ public class AuthController {
             return ResponseEntity.ok().body("Email confirmed successfully");
         }catch (BadCredentialsException e){
             return ResponseEntity.badRequest().body("Invalid confirmation code");
+        }catch (ResourcesNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/recoverAccount")
+    public ResponseEntity<?> recoverAccount( @RequestBody RecoverAccountRequest request ){
+        try{
+            final UserDetails userDetails = userService.getUserByEmail(request.getEmail());
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse(false, "Email invalid"));
+            }
+            userService.recoverAccount(request.getEmail());
+            return ResponseEntity.ok().body("Hemos enviado correctamente al correo la nueva contraseña.");
         }catch (ResourcesNotFoundException e){
             return ResponseEntity.notFound().build();
         }

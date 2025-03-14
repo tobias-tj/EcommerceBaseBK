@@ -34,4 +34,13 @@ public class EmailService {
         message.setText("Please confirm your email by enteeting this code " + user.getConfirmationCode());
         mailSender.send(message);
     }
+
+    public void sendRecoverAccount(User user, String newPassword){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(user.getEmail());
+        message.setSubject("Recover your Account");
+        message.setText("The new password associated with your account is: " + newPassword);
+        mailSender.send(message);
+    }
 }

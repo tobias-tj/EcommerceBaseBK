@@ -14,4 +14,5 @@ public class CommentDTO {
     @Max(value = 5)
     private Integer score;
     private Long userId;
+    private String userMail;
 }

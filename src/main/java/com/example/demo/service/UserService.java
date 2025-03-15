@@ -38,6 +38,10 @@ public class UserService {
         return userRepository.findByEmail(email).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
     }
 
+    public User getUserById(Long id){
+        return userRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
+    }
+
     public void changePassword(String email, ChangePasswordRequest request){
         User user = getUserByEmail(email);
         if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){

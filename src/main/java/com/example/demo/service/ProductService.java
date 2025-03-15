@@ -5,6 +5,7 @@ import com.example.demo.dto.ProductListDTO;
 import com.example.demo.exception.ResourcesNotFoundException;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.model.Product;
+import com.example.demo.model.User;
 import com.example.demo.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final UserService userService;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
@@ -65,7 +67,7 @@ public class ProductService {
 
     public ProductDTO getProduct(Long id){
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("Product Not Found"));
-        return productMapper.toDto(product);
+        return productMapper.toDtoWithUserMail(product, userService);
     }
 
     public List<ProductListDTO> getAllProducts(){

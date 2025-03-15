@@ -23,4 +23,6 @@ public class ProductListDTO {
     private String image;
     @Positive(message = "Cannot be negative")
     private BigDecimal rating;
+    @NotBlank(message = "Product Description is Required")
+    private String brand;
 }

@@ -23,6 +23,7 @@ public class Product {
     private Integer quantity;
     private BigDecimal rating;
     private String image;
+    private String brand;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();

@@ -74,8 +74,12 @@ public class ProductService {
         return productRepository.findAllWithoutComments();
     }
 
-    public List<ProductListDTO> searchProducts(String searchTerm) {
-        return productRepository.findBySearchTerm(searchTerm);
+    public List<ProductListDTO> searchProducts(  String searchTerm,
+                                                 Double minPrice,
+                                                 Double maxPrice,
+                                                 Boolean inStock,
+                                                 String brand) {
+        return productRepository.findByFilters(searchTerm, minPrice, maxPrice, inStock, brand);
     }
 
 

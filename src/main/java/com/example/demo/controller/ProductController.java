@@ -50,8 +50,12 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductListDTO>> searchProducts(@RequestParam String q) {
-        List<ProductListDTO> products = productService.searchProducts(q);
+    public ResponseEntity<List<ProductListDTO>> searchProducts(@RequestParam(required = false) String q,
+                                                               @RequestParam(required = false) Double minPrice,
+                                                               @RequestParam(required = false) Double maxPrice,
+                                                               @RequestParam(required = false) Boolean inStock,
+                                                               @RequestParam(required = false) String brand) {
+        List<ProductListDTO> products = productService.searchProducts(q, minPrice, maxPrice, inStock, brand);
         return ResponseEntity.ok(products);
     }
 

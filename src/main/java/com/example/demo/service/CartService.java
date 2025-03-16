@@ -51,7 +51,15 @@ public class CartService {
 
 
     public CartDTO getCart(Long userId){
-        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
+        Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
+
+        Cart cart = cartOptional.orElseGet(() -> {
+            Cart newCart = new Cart();
+            newCart.setUser(userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourcesNotFoundException("User not found")));
+            newCart.setCartItems(new ArrayList<>());
+            return cartRepository.save(newCart);
+        });
 
         return cartMapper.toDto(cart);
     }

@@ -25,11 +25,11 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
 
-    public CartDTO addToCart(Long userId, Long productId, Integer quantity) {
+    public void addToCart( Long userId, Long productId, Integer quantity) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourcesNotFoundException("Product not found"));
 
-        if(product.getQuantity() < quantity) {
+        if (quantity > 0 && product.getQuantity() < quantity) {
             throw new InsufficientStockException("Not enough available");
         }
 
@@ -39,14 +39,25 @@ public class CartService {
 
         if(existingCartItem.isPresent()) {
             CartItem cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            int newQuantity = cartItem.getQuantity() + quantity;
+            // Si la nueva cantidad es <= 0, elimina el ítem del carrito
+            if (newQuantity <= 0) {
+                cart.getCartItems().remove(cartItem);
+            } else {
+                cartItem.setQuantity(newQuantity);
+            }
         }else{
-            CartItem cartItem = new CartItem(null, cart, product, quantity);
-            cart.getCartItems().add(cartItem);
+            // Si el ítem no existe y la cantidad es positiva, agrégalo al carrito
+            if (quantity > 0) {
+                CartItem cartItem = new CartItem(null, cart, product, quantity);
+                cart.getCartItems().add(cartItem);
+            } else {
+                throw new IllegalArgumentException("No se puede agregar una cantidad negativa de un producto nuevo");
+            }
         }
 
         Cart savedCart = cartRepository.save(cart);
-        return cartMapper.toDto(savedCart);
+        cartMapper.toDto(savedCart);
     }
 
 

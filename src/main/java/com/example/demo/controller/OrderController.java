@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.model.Order;
 import com.example.demo.model.User;
 import com.example.demo.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,6 +51,15 @@ public class OrderController {
                                                              @RequestParam Order.OrderStatus orderStatus ){
         OrderDTO updateOrder = orderService.updateOrderStatus(orderId, orderStatus);
         return ResponseEntity.ok(updateOrder);
+    }
+
+    @PostMapping("/preparing")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse> prepareOrder( @AuthenticationPrincipal UserDetails userDetails){
+        Long userId = ((User) userDetails).getId();
+        orderService.createPreparingOrder(userId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse(true, "Orden Creada con Exito!"));
     }
 
 }

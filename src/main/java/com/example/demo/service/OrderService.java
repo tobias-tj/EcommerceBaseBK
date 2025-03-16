@@ -58,7 +58,7 @@ public class OrderService {
         order.setUser(user);
         order.setAddress(address);
         order.setPhoneNumber(phoneNumber);
-        order.setStatus(Order.OrderStatus.PREPARING);
+        order.setStatus(Order.OrderStatus.CONFIRM);
         order.setCreateAt(LocalDateTime.now());
 
         List<OrderItem> orderItems = createOrder(cart, order);
@@ -108,5 +108,33 @@ public class OrderService {
         order.setStatus(status);
         Order updatedOrder = orderRepositoy.save(order);
         return orderMapper.toDto(updatedOrder);
+    }
+
+    @Transactional
+    public void createPreparingOrder(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
+
+        if(!user.isEmailConfirmation()){
+            throw new IllegalStateException("Email not confirmed. Please confirm your email");
+        }
+
+        CartDTO cartDTO = cartService.getCart(userId);
+        Cart cart = cartMapper.toEntity(cartDTO);
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new ResourcesNotFoundException("Cannot create an order with an empty cart");
+        }
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(Order.OrderStatus.PREPARING);
+        order.setCreateAt(LocalDateTime.now());
+
+        List<OrderItem> orderItems = createOrder(cart, order);
+        order.setItems(orderItems);
+
+        orderRepositoy.save(order);
+        cartService.clearCart(userId);
+
     }
 }

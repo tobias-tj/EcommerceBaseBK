@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 public class OrderItemDTO {
     private Long id;
     private Long productId;
+    private String productName;
+    private String productImage;
+    private String productBrand;
     @Positive
     private Integer quantity;
     @Positive

@@ -39,9 +39,14 @@ public class OrderController {
 
     @GetMapping("/user")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<OrderDTO>> getUserOrders(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<OrderDTO>> getUserOrders(@AuthenticationPrincipal UserDetails userDetails, @RequestParam(required = false) Order.OrderStatus status) {
         Long userId = ((User) userDetails).getId();
-        List<OrderDTO> orders = orderService.getUserOrders(userId);
+        List<OrderDTO> orders;
+        if (status != null) {
+            orders = orderService.getUserOrdersByStatus(userId, status);
+        } else {
+            orders = orderService.getUserOrders(userId);
+        }
         return ResponseEntity.ok(orders);
     }
 

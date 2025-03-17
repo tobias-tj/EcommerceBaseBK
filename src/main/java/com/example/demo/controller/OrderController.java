@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,10 +24,13 @@ public class OrderController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<OrderDTO> createOrder( @AuthenticationPrincipal UserDetails userDetails,
-                                                 @RequestParam String address, @RequestParam String phoneNumber){
+    public ResponseEntity<OrderDTO> confirmOrder( @AuthenticationPrincipal UserDetails userDetails,
+                                                 @RequestParam String address, @RequestParam String phoneNumber, @RequestParam String paymentToken){
+        if (!(userDetails instanceof User)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
         Long userId = ((User) userDetails).getId();
-        OrderDTO orderDTO = orderService.createOrder(userId, address, phoneNumber);
+        OrderDTO orderDTO = orderService.confirmOrder(userId, address, phoneNumber, paymentToken);
         return ResponseEntity.ok(orderDTO);
     }
 

@@ -11,6 +11,8 @@ import com.example.demo.model.*;
 import com.example.demo.repositories.OrderRepositoy;
 import com.example.demo.repositories.ProductRepository;
 import com.example.demo.repositories.UserRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,44 +38,47 @@ public class OrderService {
     private final EmailService emailService;
     private final OrderMapper orderMapper;
     private final CartMapper cartMapper;
+    private final StripeService stripeService;
 
     @Transactional
-    public OrderDTO createOrder(Long userId, String address, String phoneNumber){
+    public OrderDTO confirmOrder(Long userId, String address, String phoneNumber, String paymentToken){
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourcesNotFoundException("User not found"));
         if(!user.isEmailConfirmation()){
             throw new IllegalStateException("Email not confirmed. Please confirm your email");
         }
-        CartDTO cartDTO = cartService.getCart(userId);
-        Cart cart = cartMapper.toEntity(cartDTO);
+        // Obtener la orden en estado PREPARING
+        Order order = getPreparingOrderByUserId(userId);
 
-//        for (CartItem cartItem : cart.getCartItems()) {
-//            Product product = productRepository.findById(cartItem.getId()).orElseThrow(() -> new ResourcesNotFoundException("Product not found with id: " + cartItem.getId()));
-//            cartItem.setProduct(product);
-//        }
+        BigDecimal totalAmount = order.getItems().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (cart.getCartItems().isEmpty()) {
-            throw new ResourcesNotFoundException("Cannot create an order with an empty cart");
+        int amountInPYG = totalAmount.intValueExact();
+        logger.info("Total amount calculated for order {}: {} PYG", order.getId(), amountInPYG);
+
+
+        // Realizar el cobro con Stripe
+        try {
+            String paymentIntentId = stripeService.createPaymentIntent((long) amountInPYG, "pyg", paymentToken);
+            logger.info("PaymentIntent created successfully: {}", paymentIntentId);
+        } catch (StripeException e) {
+            throw new IllegalStateException("Payment processing failed: " + e.getMessage());
         }
 
-        Order order = new Order();
-        order.setUser(user);
+        // Cambiar el estado de la orden a CONFIRM
         order.setAddress(address);
         order.setPhoneNumber(phoneNumber);
         order.setStatus(Order.OrderStatus.CONFIRM);
-        order.setCreateAt(LocalDateTime.now());
+        Order savedOrder = orderRepositoy.save(order);
 
-        List<OrderItem> orderItems = createOrder(cart, order);
-        order.setItems(orderItems);
-
-        Order saverdOrder = orderRepositoy.save(order);
-        cartService.clearCart(userId);
-
-        try{
-            emailService.sendOrderConfirmation(saverdOrder);
-        }catch (MailException e){
-            logger.error("Failed to send order confirmation email for order ID " + saverdOrder.getId(), e);
+        try {
+            emailService.sendOrderConfirmation(savedOrder);
+        } catch (MailException e) {
+            logger.error("Failed to send order confirmation email for order ID " + savedOrder.getId(), e);
         }
-        return orderMapper.toDto(saverdOrder);
+
+        return orderMapper.toDto(savedOrder);
+
     }
 
 
@@ -140,5 +146,12 @@ public class OrderService {
         orderRepositoy.save(order);
         cartService.clearCart(userId);
 
+    }
+
+    private Order getPreparingOrderByUserId(Long userId) {
+        return orderRepositoy.findByUserIdAndStatus(userId, Order.OrderStatus.PREPARING)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ResourcesNotFoundException("No preparing order found for user ID: " + userId));
     }
 }

@@ -59,7 +59,7 @@ public class OrderService {
 
         // Realizar el cobro con Stripe
         try {
-            String paymentIntentId = stripeService.createPaymentIntent((long) amountInPYG, "pyg", paymentToken);
+            String paymentIntentId = stripeService.createPaymentIntent((long) amountInPYG, "pyg", paymentToken, phoneNumber, user);
             logger.info("PaymentIntent created successfully: {}", paymentIntentId);
         } catch (StripeException e) {
             throw new IllegalStateException("Payment processing failed: " + e.getMessage());

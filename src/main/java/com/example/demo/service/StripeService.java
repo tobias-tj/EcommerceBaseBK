@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.model.User;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -18,7 +19,7 @@ public class StripeService {
     @Value("${stripe.secret-key}")
     private String secretKey;
 
-    public String createPaymentIntent(Long amount, String currency, String paymentMethodId) throws StripeException {
+    public String createPaymentIntent( Long amount, String currency, String paymentMethodId, String phoneNumber, User user ) throws StripeException {
         Stripe.apiKey = secretKey;
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -28,6 +29,9 @@ public class StripeService {
                 .setConfirm(true)
                 .setConfirmationMethod(PaymentIntentCreateParams.ConfirmationMethod.AUTOMATIC)
                 .setReturnUrl("http://localhost:5175/confirmCheckout")
+                .putMetadata("user_id", String.valueOf(user.getId()))
+                .putMetadata("user_email", user.getEmail())
+                .putMetadata("user_phone", phoneNumber)
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(params);

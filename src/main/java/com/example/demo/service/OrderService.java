@@ -13,6 +13,7 @@ import com.example.demo.repositories.ProductRepository;
 import com.example.demo.repositories.UserRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -72,8 +73,8 @@ public class OrderService {
         Order savedOrder = orderRepositoy.save(order);
 
         try {
-            emailService.sendOrderConfirmation(savedOrder);
-        } catch (MailException e) {
+            emailService.sendOrderConfirmation(order, amountInPYG);
+        } catch (MailException | MessagingException e) {
             logger.error("Failed to send order confirmation email for order ID " + savedOrder.getId(), e);
         }
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pedido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .order-details {
+            margin-top: 20px;
+        }
+        .order-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .order-details th, .order-details td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .order-details th {
+            background-color: #f4f4f4;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Confirmación de Pedido</h1>
+    <p>Hola <strong>[[ ${userName} ]]</strong>,</p>
+    <p>Gracias por tu compra. Aquí tienes los detalles de tu pedido:</p>
+
+    <div class="order-details">
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+            </tr>
+            <tr th:each="item : ${orderItems}">
+                <td th:text="${item.product.name}"></td>
+                <td th:text="${item.quantity}"></td>
+                <td th:text="${#numbers.formatInteger(item.price, 0)} + ' PYG'"></td>
+                <td th:text="${#numbers.formatInteger(item.price * item.quantity, 0)} + ' PYG'"></td>
+            </tr>
+        </table>
+    </div>
+
+    <p><strong>Total del Pedido:</strong> [[ ${totalAmount} ]] PYG</p>
+    <p><strong>Dirección de Envío:</strong> [[ ${shippingAddress} ]]</p>
+    <p><strong>Número de Teléfono:</strong> [[ ${phoneNumber} ]]</p>
+
+    <div class="footer">
+        <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+        <p>Gracias por elegirnos,</p>
+        <p><strong>TechStore</strong></p>
+    </div>
+</div>
+</body>
+</html>

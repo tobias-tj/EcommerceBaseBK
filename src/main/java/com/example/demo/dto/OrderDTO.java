@@ -16,6 +16,6 @@ public class OrderDTO {
     @NotBlank(message = "PhoneNumber is required")
     private String phoneNumber;
     private Order.OrderStatus status;
-    private LocalDateTime createdAt;
+    private LocalDateTime createAt;
     private List<OrderItemDTO> orderItems;
 }

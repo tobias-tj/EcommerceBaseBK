@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.ChangePasswordRequest;
+import com.example.demo.dto.UserDetailDTO;
 import com.example.demo.exception.ResourcesNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repositories.UserRepository;
@@ -70,6 +71,14 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         emailService.sendRecoverAccount(user, newPassword);
         userRepository.save(user);
+    }
+
+    public UserDetailDTO getUserDetails(Long id){
+        User user = getUserById(id);
+        UserDetailDTO userDetailDTO = new UserDetailDTO();
+        userDetailDTO.setEmail(user.getEmail());
+        userDetailDTO.setFullName(user.getFullName());
+        return userDetailDTO;
     }
 
     public String generateConfirmationCode(){

@@ -24,7 +24,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -110,8 +113,28 @@ public class OrderService {
         return orderMapper.toDto(orderRepositoy.findByUserId(userId));
     }
 
-    public List<OrderDTO> getUserOrdersByStatus(Long userId, Order.OrderStatus status) {
-        return orderMapper.toDto(orderRepositoy.findByUserIdAndStatus(userId, status));
+    public List<OrderDTO> getUserOrdersByStatus(Long userId, Order.OrderStatus status, Boolean isReview) {
+        List<Order> orders = orderRepositoy.findByUserIdAndStatus(userId, status);
+
+        if (!isReview) {
+            return orderMapper.toDto(orders);
+        }
+
+        Map<Long, OrderItem> uniqueProducts = new HashMap<>();
+
+        for(Order order : orders){
+            for (OrderItem orderItem : order.getItems()) {
+                uniqueProducts.putIfAbsent(orderItem.getProduct().getId(), orderItem);
+            }
+        }
+
+        List<Order> uniqueOrders = new ArrayList<>();
+        Order uniqueOrder = new Order();
+        uniqueOrder.setId(-1L);
+        uniqueOrder.setUser(orders.get(0).getUser());
+        uniqueOrder.setItems(new ArrayList<>(uniqueProducts.values()));
+        uniqueOrders.add(uniqueOrder);
+        return orderMapper.toDto(uniqueOrders);
     }
 
     public OrderDTO updateOrderStatus(Long orderId, Order.OrderStatus status){

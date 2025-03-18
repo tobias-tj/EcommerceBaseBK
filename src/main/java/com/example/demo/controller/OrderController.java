@@ -71,4 +71,15 @@ public class OrderController {
                 .body(new ApiResponse(true, "Orden Creada con Exito!"));
     }
 
+    @DeleteMapping("/clean")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> cleanOrder( @AuthenticationPrincipal UserDetails userDetails){
+        if (!(userDetails instanceof User)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+        Long userId = ((User) userDetails).getId();
+        orderService.clearOrders(userId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -149,10 +149,22 @@ public class OrderService {
 
     }
 
+    public void clearOrders(Long userId){
+        List<Order> orders = getPreparingOrdersByUserId(userId);
+        if (orders.isEmpty()) {
+            throw new ResourcesNotFoundException("No preparing orders found for user ID: " + userId);
+        }
+        orderRepositoy.deleteAll(orders);
+    }
+
     private Order getPreparingOrderByUserId(Long userId) {
         return orderRepositoy.findByUserIdAndStatus(userId, Order.OrderStatus.PREPARING)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new ResourcesNotFoundException("No preparing order found for user ID: " + userId));
+    }
+
+    private List<Order> getPreparingOrdersByUserId(Long userId) {
+        return orderRepositoy.findByUserIdAndStatus(userId, Order.OrderStatus.PREPARING);
     }
 }

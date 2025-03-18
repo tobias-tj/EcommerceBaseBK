@@ -28,7 +28,7 @@ public class Order {
     private LocalDateTime createAt;
 
     public enum OrderStatus {
-        PREPARING, CONFIRM, CANCELED
+        PREPARING, CONFIRM, RECEIVED
     }
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -20,6 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -29,12 +32,15 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login( @RequestBody LoginRequest loginRequest ){
+    public ResponseEntity<Map<String, Object>> login( @RequestBody LoginRequest loginRequest ){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        final UserDetails userDetails = userService.getUserByEmail(loginRequest.getEmail());
+        final User userDetails = userService.getUserByEmail(loginRequest.getEmail());
         final String jwt = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(jwt);
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", jwt);
+        response.put("role", userDetails.getRole());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")

@@ -27,7 +27,7 @@ public class UserService {
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new IllegalAccessException("Email already taken");
         }
-
+        user.setFullName(user.getFullName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(User.Role.USER);
         user.setConfirmationCode(generateConfirmationCode());

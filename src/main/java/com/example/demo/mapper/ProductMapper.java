@@ -28,7 +28,7 @@ public interface ProductMapper {
                         commentDTO.setUserId(comment.getUser().getId());
                         // Obtener el correo electrónico del usuario
                         User user = userService.getUserById(comment.getUser().getId());
-                        commentDTO.setUserMail(user.getEmail());
+                        commentDTO.setEmail(user.getEmail());
                         return commentDTO;
                     })
                     .collect(Collectors.toList());

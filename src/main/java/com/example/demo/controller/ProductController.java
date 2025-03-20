@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.dto.ProductListDTO;
+import com.example.demo.dto.SaleProducts;
 import com.example.demo.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,14 @@ public class ProductController {
                                                                @RequestParam(required = false) String brand) {
         List<ProductListDTO> products = productService.searchProducts(q, minPrice, maxPrice, inStock, brand);
         return ResponseEntity.ok(products);
+    }
+
+
+    @GetMapping("/sale")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SaleProducts> getSaleProducts() {
+        SaleProducts saleProducts = productService.getSaleProducts();
+        return ResponseEntity.ok(saleProducts);
     }
 
 }

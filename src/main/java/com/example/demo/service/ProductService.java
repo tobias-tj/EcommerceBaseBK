@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +36,8 @@ public class ProductService {
             String fileName = saveImage(productImage);
             product.setImage("/images/"+fileName);
         }
+        product.setBrand(productDTO.getBrand());
+        product.setRating(BigDecimal.valueOf(3.5));
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }

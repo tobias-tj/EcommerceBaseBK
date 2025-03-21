@@ -54,21 +54,49 @@ public class EmailService {
         }
     }
 
-    public void sendConfirmationCode( User user ) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(user.getEmail());
-        message.setSubject("Confirm your Email");
-        message.setText("Please confirm your email by enteeting this code " + user.getConfirmationCode());
-        mailSender.send(message);
+    public void sendConfirmationCode(User user) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+        try {
+            Context context = new Context();
+            context.setVariable("userName", user.getUsername());
+            context.setVariable("confirmationCode", user.getConfirmationCode());
+
+            String htmlContent = templateEngine.process("email-confirmation", context);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Confirm your Email");
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            log.info("Correo de confirmación enviado exitosamente a: " + user.getEmail());
+        } catch (MessagingException e) {
+            log.error("Error al enviar el correo de confirmación", e);
+        }
     }
 
-    public void sendRecoverAccount(User user, String newPassword){
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(user.getEmail());
-        message.setSubject("Recover your Account");
-        message.setText("The new password associated with your account is: " + newPassword);
-        mailSender.send(message);
+    public void sendRecoverAccount(User user, String newPassword) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+        try {
+            Context context = new Context();
+            context.setVariable("userName", user.getUsername());
+            context.setVariable("newPassword", newPassword);
+
+            String htmlContent = templateEngine.process("account-recovery", context);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Recover your Account");
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            log.info("Correo de recuperación de cuenta enviado exitosamente a: " + user.getEmail());
+        } catch (MessagingException e) {
+            log.error("Error al enviar el correo de recuperación de cuenta", e);
+        }
     }
 }

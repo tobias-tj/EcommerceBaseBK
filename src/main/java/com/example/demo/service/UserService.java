@@ -5,6 +5,7 @@ import com.example.demo.dto.UserDetailDTO;
 import com.example.demo.exception.ResourcesNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repositories.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public User registerUser( User user ) throws IllegalAccessException {
+    public User registerUser( User user ) throws IllegalAccessException, MessagingException {
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new IllegalAccessException("Email already taken");
         }
@@ -65,7 +66,7 @@ public class UserService {
         }
     }
 
-    public void recoverAccount(String email) {
+    public void recoverAccount(String email) throws MessagingException {
         User user = getUserByEmail(email);
         String newPassword = generatePasswordTemporary();
         user.setPassword(passwordEncoder.encode(newPassword));

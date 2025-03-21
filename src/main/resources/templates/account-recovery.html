@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperación de Cuenta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Recuperación de Cuenta</h1>
+    <p>Hola <strong>[[ ${userName} ]]</strong>,</p>
+    <p>Hemos recibido una solicitud para recuperar tu cuenta en TechStore. Aquí está tu nueva contraseña:</p>
+
+    <div style="text-align: center; margin: 20px 0;">
+        <strong style="font-size: 24px; color: #4CAF50;">[[ ${newPassword} ]]</strong>
+    </div>
+
+    <p>Por favor, cambia esta contraseña después de iniciar sesión por motivos de seguridad.</p>
+
+    <div class="footer">
+        <p>Gracias por elegirnos,</p>
+        <p><strong>TechStore</strong></p>
+    </div>
+</div>
+</body>
+</html>

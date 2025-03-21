@@ -5,6 +5,7 @@ import com.example.demo.exception.ResourcesNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.JwtService;
 import com.example.demo.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@Valid @RequestBody User user) throws IllegalAccessException {
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody User user) throws IllegalAccessException, MessagingException {
         User registeredUser = userService.registerUser(user);
 
         if (registeredUser == null) {
@@ -88,6 +89,8 @@ public class AuthController {
             return ResponseEntity.ok().body("Hemos enviado correctamente al correo la nueva contraseña.");
         }catch (ResourcesNotFoundException e){
             return ResponseEntity.notFound().build();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
         }
     }
 
